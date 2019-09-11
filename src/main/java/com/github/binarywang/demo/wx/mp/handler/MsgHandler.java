@@ -1,7 +1,9 @@
 package com.github.binarywang.demo.wx.mp.handler;
 
 import com.github.binarywang.demo.wx.mp.builder.TextBuilder;
+import com.github.binarywang.demo.wx.mp.utils.HttpUtils;
 import com.github.binarywang.demo.wx.mp.utils.JsonUtils;
+import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.common.session.WxSessionManager;
 import me.chanjar.weixin.mp.api.WxMpService;
@@ -17,6 +19,7 @@ import static me.chanjar.weixin.common.api.WxConsts.XmlMsgType;
 /**
  * @author Binary Wang(https://github.com/binarywang)
  */
+@Slf4j
 @Component
 public class MsgHandler extends AbstractHandler {
 
@@ -42,9 +45,12 @@ public class MsgHandler extends AbstractHandler {
             e.printStackTrace();
         }
 
-        //TODO 组装回复消息
-        String content = "收到信息内容：" + JsonUtils.toJson(wxMessage);
-
+        // 拿到消息进行请求  组装回复消息
+        String msg = wxMessage.getContent(); // 获取到用户输入的内容
+        String url = HttpUtils.URL + msg;
+//        String content = JsonUtils.toJson(wxMessage);
+        String content = HttpUtils.parseHtml(HttpUtils.httpRequest(url));
+        log.info("请求回的接口内容: " + content);
         return new TextBuilder().build(content, wxMessage, weixinService);
 
     }
